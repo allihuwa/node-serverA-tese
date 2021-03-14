@@ -15,9 +15,19 @@ var io = require("socket.io")(http, {
 http.listen(process.env.PORT || 3000, function () {
   console.log("listening on *:3000");
 });
-
+var labelMap = new Map(); //{key: socket.id, value:label}
+var labelCounter = 1001;
 var serverID = "undefined";
+
 io.on("connection", function (socket) {
+  //new client, register in map and send him his label
+  if (serverID != "undefined") {
+    labelMap.set(socket, labelCounter);
+    socket.emit("OnReceiveData", {
+      DataString: "10001",
+    });
+    labelCounter = labelCounter + 1;
+  }
   console.log(
     "a user connected: " + socket.id + " (server: " + serverID + " )"
   );
@@ -32,6 +42,7 @@ io.on("connection", function (socket) {
       serverID = "undefined";
       console.log("removed Server: " + socket.id);
     } else {
+      labelMap.delete(socket);
       console.log("user disconnected: " + socket.id);
     }
   });
