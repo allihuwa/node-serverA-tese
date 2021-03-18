@@ -18,13 +18,13 @@ http.listen(process.env.PORT || 3000, function () {
 var labelMap = new Map(); //{key: socket.id, value:label}
 var labelCounter = 1001;
 var serverID = "undefined";
-
+var serverinControl = true;
 io.on("connection", function (socket) {
   //new client, register in map and send him his label
   if (serverID != "undefined") {
     labelMap.set(socket, labelCounter);
     socket.emit("OnReceiveData", {
-      DataString: "10001",
+      DataString: labelCounter,
     });
     labelCounter = labelCounter + 1;
   }
@@ -59,8 +59,10 @@ io.on("connection", function (socket) {
           break;
         //emit type: server;
         case 1:
+          stringtoSend = StringHandler(data, socket);
+          console.log(stringtoSend);
           io.to(serverID).emit("OnReceiveData", {
-            DataString: data.DataString,
+            DataString: stringtoSend,
             DataByte: data.DataByte,
           });
           break;
@@ -71,9 +73,29 @@ io.on("connection", function (socket) {
             DataByte: data.DataByte,
           });
           break;
+        //emit type: target, label== words[0], action== words[1], socket.id == words[2];
+        case 3:
+          console.log("TARGET SENDING " + data.DataString);
+          var words = data.DataString.split(" ");
+          console.log("LABEL AND ACTION BELOW");
+          console.log(words[0] + " " + words[1]); //label + action
+          var stringToSend = words[0] + " " + words[1];
+          io.to(words[2]).emit("OnReceiveData", {
+            DataString: stringToSend,
+            DataByte: data.DataByte,
+          });
+          break;
       }
     } else {
       console.log("cannot find any active server");
     }
   });
 });
+
+function StringHandler(data, socket) {
+  if (data.DataString.length === 4) {
+    return data.DataString + " " + socket.id;
+  } else {
+    return data.DataString;
+  }
+}
