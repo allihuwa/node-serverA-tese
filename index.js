@@ -16,7 +16,7 @@ http.listen(process.env.PORT || 3000, function () {
   console.log("listening on *:3000");
 });
 var labelMap = new Map(); //{key: socket.id, value:label}
-var labelCounter = 1001;
+var labelCounter = 1002;
 var serverID = "undefined";
 var serverinControl = true;
 io.on("connection", function (socket) {
