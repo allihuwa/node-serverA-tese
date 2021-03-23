@@ -41,6 +41,8 @@ io.on("connection", function (socket) {
     if (serverID == socket.id) {
       serverID = "undefined";
       console.log("removed Server: " + socket.id);
+      labelMap.clear();
+      labelCounter = 1002;
     } else {
       labelMap.delete(socket);
       console.log("user disconnected: " + socket.id);
